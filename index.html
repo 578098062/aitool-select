@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="本地 Admin 模型渠道、原厂身份与官方成本核对选择表" />
+    <title>模型成本决策台｜国内 / 海外渠道</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero__copy">
+          <div class="eyebrow"><span class="eyebrow__dot"></span>模型成本决策台 · 本地 Admin 快照</div>
+          <h1>国内 / 海外模型<br /><span>成本与渠道选择表</span></h1>
+          <p class="hero__lead">
+            把“接入渠道、真实原厂、真实上游 model ID、官方公开价、本地成本”放在同一行，可直接勾选保留项并导出。
+          </p>
+          <div class="hero__actions">
+            <button class="button button--primary" id="jumpToModels">开始选择</button>
+            <button class="button button--ghost" id="openMethodology">查看口径</button>
+          </div>
+        </div>
+        <div class="hero__dashboard" aria-label="快照概览">
+          <div class="hero__stamp">
+            <span>SNAPSHOT</span>
+            <strong id="snapshotDate">—</strong>
+            <small>Asia / Shanghai</small>
+          </div>
+          <div class="metric-grid">
+            <div class="metric"><span>当前模型</span><strong id="metricModels">—</strong><small>去重逻辑模型</small></div>
+            <div class="metric"><span>已启用</span><strong id="metricEnabled">—</strong><small>至少一项能力启用</small></div>
+            <div class="metric"><span>实际渠道</span><strong id="metricChannels">—</strong><small>含模型的账号</small></div>
+            <div class="metric"><span>官方核验</span><strong id="metricVerified">—</strong><small>产品 / SKU 已核</small></div>
+          </div>
+        </div>
+      </header>
+
+      <!-- <section class="identity-callout" aria-label="重点身份说明">
+        <div class="identity-callout__mark">重点纠正</div>
+        <div>
+          <strong>ERNIE 4.5 Turbo 32K 不是火山模型。</strong>
+          <p>本地实际配置为“百度智能云 · 千帆文本”渠道，逻辑 ID 与上游 ID 都是 <code>ernie-4.5-turbo-32k</code>。</p>
+        </div>
+        <button class="text-button" id="locateErnie">在表中定位 →</button>
+      </section> -->
+
+      <section class="decision-notes" id="methodology">
+        <article>
+          <span class="note-index">01</span>
+          <div><strong>成本是人工录入，不会自动同步官网</strong><p>Admin 输入框按人民币“元”填写，保存时换成“分”写入计费模板；代码没有自动抓官方价格或自动套汇率。</p></div>
+        </article>
+        <article>
+          <span class="note-index">02</span>
+          <div><strong>海外成本多为静态汇率折算</strong><p>公开美元价通常先乘录入时采用的报价汇率，再按后台精度取整；这不是实时支付汇率，合同折扣与税费也不在其中。</p></div>
+        </article>
+        <article>
+          <span class="note-index">03</span>
+          <div><strong>售价基本按成本 × 2</strong><p>排除 40 组 0/0 结构占位后，220 组正成本中 219 组售价恰为 2 倍；唯一例外是百度 TTS 的超小单价取到整分。它是现状规律，不是程序强制。</p></div>
+        </article>
+        <article>
+          <span class="note-index">04</span>
+          <div><strong>复杂计费是运营折算</strong><p>厂商按 token、像素或输入素材结算时，本地会折成按张、按秒或按条的预算价；展开模型可看具体公式与偏差。</p></div>
+        </article>
+      </section>
+
+      <section class="pricing-flow" aria-label="本地价格配置链路">
+        <div class="pricing-flow__head">
+          <span>CONFIGURATION FLOW</span>
+          <div><h2>我们配置的价格，是这样形成的</h2><p>这是人工运营链路，不是程序自动从厂商官网同步。</p></div>
+        </div>
+        <div class="pricing-flow__steps">
+          <article><em>1</em><strong>取得原始报价</strong><p>官方公开刊例、账号合同价或控制台账单</p></article>
+          <i aria-hidden="true">→</i>
+          <article><em>2</em><strong>换算运营成本</strong><p>美元乘固定汇率；复杂计费选最高档或典型场景折算</p></article>
+          <i aria-hidden="true">→</i>
+          <article><em>3</em><strong>Admin 手填 cost</strong><p>以人民币元录入；极小单价按字段允许精度保留</p></article>
+          <i aria-hidden="true">→</i>
+          <article><em>4</em><strong>Admin 手填 sale</strong><p>本快照几乎全部为 cost×2，但代码没有强制倍率</p></article>
+          <i aria-hidden="true">→</i>
+          <article><em>5</em><strong>保存并运行计费</strong><p>换成分写入模板；cost 扣渠道余额，sale 扣用户</p></article>
+        </div>
+        <p class="pricing-flow__warning"><b>证据缺口：</b>数据库没有保存报价来源、汇率日期或推导公式，所以页面只把能与官方数字精确对应的项目标成“可反推”，不能把反推当作录入人的原始审计记录。</p>
+      </section>
+
+      <section class="audit-guide" aria-label="核价状态说明">
+        <div class="audit-guide__copy">
+          <span>STATUS GUIDE</span>
+          <h2>“官方已核”不等于每项公开页都有金额</h2>
+          <p><b>官方已核</b>表示厂商官方页面、产品与 SKU/能力已经确认；若公开页面未展示现金价，明细会明确写“需控制台确认”。<b>有价需确认</b>表示已经找到官方价，但仍有生命周期、旧价未更新、固定配额、预览版本或本地折算偏差。</p>
+        </div>
+        <div class="audit-guide__metrics">
+          <div><strong id="auditVerifiedCount">—</strong><span>官方产品 / SKU 已核</span></div>
+          <div><strong id="auditReviewCount">—</strong><span>有价但仍需确认</span></div>
+          <div><strong id="auditUnverifiedCount">—</strong><span>未确认官方来源</span></div>
+        </div>
+      </section>
+
+      <main id="models" class="workspace">
+        <section class="catalog-panel">
+          <div class="toolbar" id="toolbar">
+            <div class="region-tabs" role="tablist" aria-label="区域筛选">
+              <button class="region-tab is-active" data-region="all" role="tab" aria-selected="true">全部 <span id="countAll">0</span></button>
+              <button class="region-tab" data-region="domestic" role="tab" aria-selected="false">国内 <span id="countDomestic">0</span></button>
+              <button class="region-tab" data-region="overseas" role="tab" aria-selected="false">海外 <span id="countOverseas">0</span></button>
+            </div>
+            <label class="search-box">
+              <span class="sr-only">搜索模型、渠道、厂商或 ID</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m2.1-5.4a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" /></svg>
+              <input id="searchInput" type="search" placeholder="搜模型 / 原厂 / 渠道 / ID" autocomplete="off" />
+              <kbd>⌘ K</kbd>
+            </label>
+            <div class="toolbar__filters">
+              <label><span>类型</span><select id="modalityFilter"><option value="all">全部类型</option><option value="text">文本</option><option value="image">图片</option><option value="video">视频</option><option value="audio">语音</option></select></label>
+              <label><span>启用</span><select id="statusFilter"><option value="all">全部状态</option><option value="enabled">已启用</option><option value="disabled">已停用</option></select></label>
+              <label><span>核价</span><select id="auditFilter"><option value="all">全部口径</option><option value="verified">官方已核</option><option value="review">有价需确认</option><option value="unverified">未确认官方来源</option></select></label>
+            </div>
+            <div class="toolbar__result">
+              <span>当前显示 <strong id="visibleCount">0</strong> 个模型</span>
+              <div>
+                <button class="mini-button" id="selectVisible">勾选当前</button>
+                <button class="mini-button" id="clearVisible">取消当前</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="legend" aria-label="状态图例">
+            <span><i class="legend-dot legend-dot--verified"></i>官方产品 / SKU 与一手来源已核</span>
+            <span><i class="legend-dot legend-dot--review"></i>官方有价，但选择或本地折算仍有风险</span>
+            <span><i class="legend-dot legend-dot--unverified"></i>尚未确认官方产品 / SKU 来源</span>
+            <span class="legend__hint">点击任一模型可展开完整价格档位与证据。</span>
+          </div>
+
+          <div id="catalog" class="catalog" aria-live="polite"></div>
+          <div id="emptyState" class="empty-state" hidden>
+            <strong>没有匹配的模型</strong>
+            <p>换一个关键词，或清除部分筛选条件。</p>
+            <button class="mini-button" id="resetFilters">重置筛选</button>
+          </div>
+        </section>
+
+        <aside class="selection-panel" aria-label="已选模型">
+          <div class="selection-panel__head">
+            <div><span>DECISION LIST</span><strong>勾选清单</strong></div>
+            <div class="selection-count"><b id="selectedCount">0</b><small>已选</small></div>
+          </div>
+          <div class="selection-breakdown">
+            <span>国内 <b id="selectedDomestic">0</b></span>
+            <span>海外 <b id="selectedOverseas">0</b></span>
+            <span>需复核 <b id="selectedReview">0</b></span>
+          </div>
+          <div id="selectionList" class="selection-list">
+            <div class="selection-empty"><span>✓</span><strong>从左侧勾选候选模型</strong><p>选择会保存在当前浏览器，不会修改 Admin 配置。</p></div>
+          </div>
+          <div class="selection-panel__actions">
+            <button class="button button--primary button--block" id="downloadCsv" disabled>导出勾选 CSV</button>
+            <div class="action-row">
+              <button class="mini-button" id="copySelection" disabled>复制摘要</button>
+              <button class="mini-button mini-button--danger" id="clearSelection" disabled>清空</button>
+            </div>
+          </div>
+          <p class="privacy-note">仅导出模型、渠道、原厂和价格口径；不包含密钥、余额或用户数据。</p>
+        </aside>
+      </main>
+
+      <footer>
+        <div>
+          <strong>数据证据</strong>
+          <p id="snapshotEvidence">—</p>
+        </div>
+        <div>
+          <strong>使用提醒</strong>
+          <p>这是决策快照，不会回写数据库。真正停用模型前仍需在 Admin 中操作并走正常验证流程。</p>
+        </div>
+      </footer>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="./snapshot.js"></script>
+    <script src="./official-pricing.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
